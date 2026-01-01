@@ -1,0 +1,86 @@
+1.1.2026, 19:49:32 - ERROR - Error: hex string must be 24 characters
+    at createFromHexString (C:\Users\PC\Downloads\ShopStream\backend\node_modules\bson\lib\bson.cjs:2669:23)
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:22:56)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:12:21)
+    at async dispatch (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\compose.js:22:23)
+    at async <anonymous> (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\hono-base.js:301:31)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 19:52:46 - INFO - Users route accessed
+1.1.2026, 19:55:12 - ERROR - Error: Invalid user ID
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:21:13)
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:19:31)
+    at getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:12:21)
+    at getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:10:31)
+    at dispatch (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\compose.js:22:23)
+    at dispatch (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\compose.js:6:32)
+    at <anonymous> (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\hono-base.js:301:31)
+    at <anonymous> (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\hono-base.js:299:13)
+1.1.2026, 19:55:19 - INFO - Users route accessed
+1.1.2026, 19:56:20 - INFO - Users route accessed
+1.1.2026, 19:56:25 - ERROR - Error: Invalid user ID
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:21:13)
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:19:31)
+    at getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:11:21)
+    at getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:9:31)
+    at #dispatch (C:\Users\PC\Downloads\ShopStream\backend\node_modules\hono\dist\hono-base.js:288:36)
+1.1.2026, 19:56:39 - ERROR - Error: Cannot find user by id in db
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:27:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:11:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:29:32 - INFO - Users route accessed
+1.1.2026, 20:34:46 - ERROR - Error: Cannot find user by id in db
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:27:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:11:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:38:04 - ERROR - Error: Cannot find user by email in db
+    at getByEmail (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:37:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:11:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:39:07 - INFO - Users route accessed
+1.1.2026, 20:41:17 - ERROR - Error: Cannot add user | Email taken
+    at add (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:69:27)
+    at async addUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:29:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:41:25 - ERROR - Error: Cannot find user by email in db
+    at getByEmail (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:37:23)
+    at async add (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:67:26)
+    at async addUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:29:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:42:48 - INFO - Users route accessed
+1.1.2026, 20:49:51 - ERROR - Error: Cannot find user by id in db
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:27:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:11:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:50:37 - INFO - Users route accessed
+1.1.2026, 20:52:38 - ERROR - Error: hex string must be 24 characters
+    at createFromHexString (C:\Users\PC\Downloads\ShopStream\backend\node_modules\bson\lib\bson.cjs:2669:23)
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:53:17)
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:51:30)
+    at updateUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:23:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:53:14 - ERROR - Error: hex string must be 24 characters
+    at createFromHexString (C:\Users\PC\Downloads\ShopStream\backend\node_modules\bson\lib\bson.cjs:2669:23)
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:59:57)
+    at async updateUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:23:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:54:25 - ERROR - Error: Invalid user ID
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:52:45)
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:51:30)
+    at updateUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:23:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 20:55:10 - ERROR - Error: Cannot update user | Invalid user ID
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:52:45)
+    at update (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:51:30)
+    at updateUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:23:26)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 21:07:33 - ERROR - Error: Cannot find user by id in db
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:28:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:12:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 21:09:52 - ERROR - Error: Cannot find user by id in db
+    at getById (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-service.ts:28:23)
+    at async getUser (C:\Users\PC\Downloads\ShopStream\backend\src\routes\users\users-controller.ts:12:21)
+    at processTicksAndRejections (native:7:39)
+1.1.2026, 21:14:45 - INFO - Users route accessed
+1.1.2026, 21:14:57 - INFO - Users route accessed
+1.1.2026, 21:16:25 - INFO - Products route accessed

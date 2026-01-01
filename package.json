@@ -1,0 +1,17 @@
+{
+  "name": "backend",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "hono": "^4.11.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^6.21.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.0.3"
+  }
+}
