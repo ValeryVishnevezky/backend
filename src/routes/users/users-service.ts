@@ -3,9 +3,7 @@ import { dbService } from '../../services/db'
 import { User, UserFilter } from '../../types/user'
 
 export async function query(filterBy = {}) {
-	console.log('filterBy', filterBy)
 	const criteria = _buildCriteria(filterBy)
-	console.log('criteria', criteria)
 	const collection = await dbService.getCollection('users')
 	let users = await collection.find(criteria).toArray()
 
@@ -102,8 +100,7 @@ function _buildCriteria(filterBy: UserFilter) {
 		]
 	}
 	if (filterBy.email) {
-		const emailCriteria = { $regex: filterBy.email, $options: 'i' }
-		criteria.email = emailCriteria
+		criteria.email = { $regex: filterBy.email, $options: 'i' }
 	}
 	return criteria
 }
