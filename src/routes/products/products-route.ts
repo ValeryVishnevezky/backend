@@ -11,8 +11,8 @@ products.get('/test', c => {
 
 products.get('/', getProducts)
 products.get('/:id', getProduct)
+products.delete('/:id', deleteProduct)
 products.post('/', addProduct)
 products.put('/:id', updateProduct)
-products.delete('/:id', deleteProduct)
 
 export default products

@@ -11,8 +11,8 @@ users.get('/test', c => {
 
 users.get('/', getUsers)
 users.get('/:id', getUser)
+users.delete('/:id', deleteUser)
 users.post('/', addUser)
 users.put('/:id', updateUser)
-users.delete('/:id', deleteUser)
 
 export default users
