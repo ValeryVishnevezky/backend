@@ -5,8 +5,20 @@ export interface User {
   fullname: string
   email: string
   isAdmin?: boolean
-  createdAt?: Date
 }
+
+export interface LoginUser {
+  username?: string
+  password?: string
+  email?: string
+}
+
+// export interface SignupUser {
+//   username: string
+//   password: string
+//   fullname: string
+//   email: string
+// }
 
 export interface UserFilter {
   txt?: string

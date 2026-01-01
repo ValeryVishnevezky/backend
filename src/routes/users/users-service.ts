@@ -36,6 +36,18 @@ export async function getByEmail(email: string) {
 	return user
 }
 
+// export async function getByName(username: string) {
+// 	const collection = await dbService.getCollection('users')
+// 	const user = await collection.findOne({ username })
+
+// 	if (!user) {
+// 		const user = await collection.findOne({ email: username })
+// 		if (!user) throw new Error('Cannot find user by username or email in db')
+// 	}
+
+// 	return user
+// }
+
 export async function remove(id: string) {
 	if (!ObjectId.isValid(id)) throw new Error('Cannot remove user | Invalid user ID')
 

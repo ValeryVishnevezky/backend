@@ -4,12 +4,14 @@
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "hono": "^4.11.3",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^6.21.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.3"
