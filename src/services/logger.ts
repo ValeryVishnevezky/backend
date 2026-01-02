@@ -17,17 +17,16 @@ export const loggerService = {
 	error: (...args: any[]) => _writeLog('ERROR', ...args)
 }
 
-
 async function _writeLog(level: string, ...args: any[]) {
 	const store = asyncLocalStorage.getStore()
 	const userId = store?.loggedinUser?._id
 	const strs = args.map(_formatArg)
 
 	if (userId) strs.unshift(`USER_ID: ${userId}`)
-	
+
 	const line = `${_getTime()} - ${level} - ${strs.join(' | ')}\n`
 	console.log(line)
-	
+
 	try {
 		await fs.mkdir(logsDir, { recursive: true })
 		await fs.appendFile(logFile, line)

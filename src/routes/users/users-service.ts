@@ -1,18 +1,20 @@
 import { ObjectId } from 'mongodb'
 import { dbService } from '../../services/db'
-import { User, UserFilter } from '../../types/user'
+import { PublicUser, SignupUser, UserFilter } from '../../types/user'
 
 export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('users')
-	let users = await collection.find(criteria).toArray()
+	let dbUsers = await collection.find(criteria).toArray()
 
-	if (!users) throw new Error('Cannot find users in db')
+	if (!dbUsers) throw new Error('Cannot find users in db')
 
-	users = users.map(user => {
-		delete user.password
-		user.createdAt = new ObjectId(user._id).getTimestamp()
-		return user
+	let users = dbUsers.map(dbUser => {
+		let publicUser = makePublicUser(dbUser)
+		return {
+			...publicUser,
+			createdAt: new ObjectId(dbUser._id).getTimestamp()
+		}
 	})
 	return users
 }
@@ -21,12 +23,11 @@ export async function getById(id: string) {
 	if (!ObjectId.isValid(id)) throw new Error('Invalid user ID')
 
 	const collection = await dbService.getCollection('users')
-	const user = await collection.findOne({ _id: ObjectId.createFromHexString(id) })
+	const dbUser = await collection.findOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!user) throw new Error('Cannot find user by id in db')
+	if (!dbUser) throw new Error('Cannot find user by id in db')
 
-	delete user?.password
-	return user
+	return makePublicUser(dbUser)
 }
 
 export async function getByEmail(email: string) {
@@ -61,12 +62,11 @@ export async function remove(id: string) {
 	return res
 }
 
-export async function update(user: User) {
+export async function update(user: PublicUser) {
 	if (!ObjectId.isValid(user._id)) throw new Error('Cannot update user | Invalid user ID')
 
 	const userToSave = {
 		username: user.username,
-		password: user.password,
 		fullname: user.fullname,
 		email: user.email
 	}
@@ -78,7 +78,7 @@ export async function update(user: User) {
 	return userToSave
 }
 
-export async function add(user: User) {
+export async function add(user: SignupUser): Promise<PublicUser> {
 	const existUser = await getByEmail(user.email)
 
 	if (existUser) throw new Error('Cannot add user | Email taken')
@@ -94,8 +94,9 @@ export async function add(user: User) {
 	const res = await collection.insertOne(userToAdd)
 
 	if (!res) throw new Error('Cannot add user to db')
+	console.log('res', res)
 
-	return userToAdd
+	return makePublicUser({ ...userToAdd, _id: res.insertedId })
 }
 
 function _buildCriteria(filterBy: UserFilter) {
@@ -115,4 +116,14 @@ function _buildCriteria(filterBy: UserFilter) {
 		criteria.email = { $regex: filterBy.email, $options: 'i' }
 	}
 	return criteria
+}
+
+export function makePublicUser(user: any): PublicUser {
+	return {
+		_id: user._id.toString(),
+		username: user.username,
+		fullname: user.fullname,
+		email: user.email,
+		isAdmin: user.isAdmin || false
+	}
 }

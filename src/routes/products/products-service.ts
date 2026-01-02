@@ -80,8 +80,8 @@ function _buildCriteria(filterBy: ProductFilter) {
 	}
 	if (filterBy.minPrice || filterBy.maxPrice) {
 		criteria.price = {}
-		if (filterBy.minPrice != null) criteria.price = {$gte: +filterBy.minPrice}
-		if (filterBy.maxPrice != null) criteria.price = {$lte: +filterBy.maxPrice}
+		if (filterBy.minPrice != null) criteria.price = { $gte: +filterBy.minPrice }
+		if (filterBy.maxPrice != null) criteria.price = { $lte: +filterBy.maxPrice }
 	}
 	if (filterBy.category) {
 		criteria.category = { $regex: filterBy.category, $options: 'i' }

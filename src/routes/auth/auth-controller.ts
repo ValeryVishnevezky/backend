@@ -1,21 +1,25 @@
 import { Context } from 'hono'
-import { loginService, signupService, logoutService } from './auth-service'
+import { loginService, signupService, generateToken } from './auth-service'
 
 export async function login(c: Context) {
 	const user = await c.req.json()
+
 	const loggedinUser = await loginService(user)
-	return c.json(loggedinUser)
+	const loginToken = await generateToken({ _id: loggedinUser._id, email: loggedinUser.email })
+
+	return c.json({ user: loggedinUser, token: loginToken })
 }
 
 export async function signup(c: Context) {
 	const user = await c.req.json()
-	console.log('user', user)
 
-	const loggedinUser = await signupService(user)
-	return c.json(loggedinUser)
+	const addedUser = await signupService(user)
+	const loggedinUser = await loginService({ email: addedUser.email, password: user.password })
+	const loginToken = await generateToken({ _id: loggedinUser._id, email: loggedinUser.email })
+
+	return c.json({ user: loggedinUser, token: loginToken })
 }
 
 export async function logout(c: Context) {
-	await logoutService()
 	return c.json({ msg: 'Logged out successfully' })
 }
