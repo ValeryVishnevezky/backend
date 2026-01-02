@@ -9,10 +9,6 @@ export async function query(filterBy = {}) {
 
 	if (!products) throw new Error('Cannot find products in db')
 
-	products = products.map(product => {
-		product.createdAt = new ObjectId(product._id).getTimestamp()
-		return product
-	})
 	return products
 }
 

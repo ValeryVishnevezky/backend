@@ -7,10 +7,12 @@ export async function query(filterBy = {}) {
 	const collection = await dbService.getCollection('orders')
 	let orders = await collection.find(criteria).toArray()
 
-	if (!orders) throw new Error('Cannot find orders in db')
+	if (!orders.length) throw new Error('Cannot find orders in db')
 
+		const dates = [new Date('2026-01-01T12:00:00Z'), new Date('2026-01-02T12:00:00Z'), new Date('2025-11-02T12:00:00Z'), new Date('2025-09-03T12:00:00Z'), new Date('2025-08-03T12:00:00Z')]
 	orders = orders.map(order => {
-		order.createdAt = new ObjectId(order._id).getTimestamp()
+		// order.createdAt = new ObjectId(order._id).getTimestamp()
+		order.createdAt = dates[Math.floor(Math.random() * dates.length)]
 		return order
 	})
 	return orders
@@ -68,7 +70,6 @@ export async function update(order: Order) {
 }
 
 export async function add(order: Order) {
-	// console.log('order', order)
 	const orderToAdd = {
 		product: {
 			_id: ObjectId.createFromHexString(order.product._id),
@@ -77,18 +78,18 @@ export async function add(order: Order) {
 			category: order.product.category
 		},
 		customer: {
-			_id: ObjectId.createFromHexString(order.customer._id),
+			_id: order.customer._id,
 			username: order.customer.username,
 			email: order.customer.email
 		},
-		status: order.status,
+		status: "panding",
 		quantity: order.quantity,
 		totalPrice: order.totalPrice
 	}
-	console.log('orderToAdd', orderToAdd)
+
 	const collection = await dbService.getCollection('orders')
 	const addedOrder = await collection.insertOne(orderToAdd)
-	console.log('addedOrder', addedOrder)
+
 	if (!addedOrder) throw new Error('Cannot add order to db')
 
 	return orderToAdd
