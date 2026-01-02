@@ -3,46 +3,32 @@ import { loggerService } from '../services/logger'
 import { getCookie } from 'hono/cookie'
 import { getByEmail } from '../routes/users/users-service'
 import { Context, Next } from 'hono'
+import { HTTPException } from 'hono/http-exception'
 
 export async function requireAuth(c: Context, next: Next) {
 	const loginToken = getCookie(c, 'loginToken')
 
-	if (!loginToken) {
-		return c.json({ error: 'Unauthorized' }, 401)
-	}
+	if (!loginToken) throw new HTTPException(401, { message: 'Unauthorized' })
 
 	try {
 		const validateToken = await verify(loginToken, process.env.JWT_SECRET!)
-		if (!validateToken) return c.json({ error: 'Invalid token' }, 401)
+		if (!validateToken) throw new HTTPException(401, { message: 'Invalid token' })
 
 		const loggedinUser = await getByEmail(validateToken.email as string)
+		if (!loggedinUser) throw new HTTPException(401, { message: 'User not found' })
 
 		c.set('loggedinUser', loggedinUser)
 		await next()
 	} catch (err) {
 		loggerService.error(err)
-		return c.json({ error: 'Unauthorized' }, 401)
+		throw new HTTPException(401, { message: 'Unauthorized' })
 	}
 }
 
 export async function requireAdmin(c: Context, next: Next) {
-	const loginToken = getCookie(c, 'loginToken')
+	const user = c.get('loggedinUser')
 
-	if (!loginToken) {
-		return c.json({ error: 'Unauthorized' }, 401)
-	}
+	if (!user?.isAdmin) throw new HTTPException(403, { message: 'Unauthorized access' })
 
-	try {
-		const validateToken = await verify(loginToken, process.env.JWT_SECRET!)
-		if (!validateToken) return c.json({ error: 'Invalid token' }, 401)
-
-		const loggedinUser = await getByEmail(validateToken.email as string)
-		if (!loggedinUser?.isAdmin) throw new Error('Unauthorized access')
-
-		c.set('loggedinUser', loggedinUser)
-		await next()
-	} catch (err) {
-		loggerService.warn(err)
-		return c.json({ error: 'Unauthorized access' }, 401)
-	}
+	await next()
 }

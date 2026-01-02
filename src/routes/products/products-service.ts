@@ -1,44 +1,43 @@
 import { ObjectId } from 'mongodb'
 import { dbService } from '../../services/db'
 import { Product, ProductFilter } from '../../types/product'
+import { HTTPException } from 'hono/http-exception'
 
 export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('products')
 	let products = await collection.find(criteria).toArray()
 
-	if (!products) throw new Error('Cannot find products in db')
+	if (!products.length) throw new HTTPException(404, { message: 'Cannot find products' })
 
 	return products
 }
 
 export async function getById(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Invalid product ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid product Id' })
 
 	const collection = await dbService.getCollection('products')
 	const product = await collection.findOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!product) throw new Error('Cannot find product by id in db')
+	if (!product) throw new HTTPException(404, { message: 'Cannot find product' })
 
 	delete product?.password
 	return product
 }
 
 export async function remove(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Cannot remove product | Invalid product ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid product Id' })
 
 	const collection = await dbService.getCollection('products')
-	const res = await collection.deleteOne({
-		_id: ObjectId.createFromHexString(id)
-	})
+	const res = await collection.deleteOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!res) throw new Error('Cannot remove product from db')
+	if (res.deletedCount === 0) throw new HTTPException(400, { message: 'Cannot remove product' })
 
 	return res
 }
 
 export async function update(product: Product) {
-	if (!ObjectId.isValid(product._id)) throw new Error('Cannot update product | Invalid product ID')
+	if (!product._id || !ObjectId.isValid(product._id)) throw new HTTPException(400, { message: 'Invalid product Id' })
 
 	const productToSave = {
 		name: product.name,
@@ -49,12 +48,16 @@ export async function update(product: Product) {
 	const collection = await dbService.getCollection('products')
 	const updatedProduct = await collection.updateOne({ _id: ObjectId.createFromHexString(product._id) }, { $set: productToSave })
 
-	if (!updatedProduct) throw new Error('Cannot update product in db')
+	if (updatedProduct.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update product' })
 
 	return productToSave
 }
 
 export async function add(product: Product) {
+	if (!product.name || !product.price || !product.category || !product.inStock) {
+		throw new HTTPException(400, { message: 'Missing required fields to add product' })
+	}
+
 	const productToAdd = {
 		name: product.name,
 		price: product.price,
@@ -64,7 +67,8 @@ export async function add(product: Product) {
 	const collection = await dbService.getCollection('products')
 	const addedProduct = await collection.insertOne(productToAdd)
 
-	if (!addedProduct) throw new Error('Cannot add product to db')
+	console.log('addedProduct', addedProduct)
+	if (!addedProduct.insertedId) throw new HTTPException(400, { message: 'Cannot add product' })
 
 	return productToAdd
 }

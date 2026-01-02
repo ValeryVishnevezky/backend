@@ -1,13 +1,13 @@
 import { Hono } from 'hono'
 import { addProduct, deleteProduct, getProduct, getProducts, updateProduct } from './products-controller'
-import { requireAdmin } from '../../middlewares/middlewares'
+import { requireAdmin, requireAuth } from '../../middlewares/middlewares'
 
 const products = new Hono()
 
 products.get('/', getProducts)
 products.get('/:id', getProduct)
-products.delete('/:id', requireAdmin, deleteProduct)
-products.post('/', requireAdmin, addProduct)
-products.put('/:id', requireAdmin, updateProduct)
+products.delete('/:id', requireAuth, requireAdmin, deleteProduct)
+products.post('/', requireAuth, requireAdmin, addProduct)
+products.put('/:id', requireAuth, requireAdmin, updateProduct)
 
 export default products

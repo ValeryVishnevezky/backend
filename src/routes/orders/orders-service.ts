@@ -1,13 +1,14 @@
 import { ObjectId } from 'mongodb'
 import { dbService } from '../../services/db'
 import { Order, OrderFilter } from '../../types/order'
+import { HTTPException } from 'hono/http-exception'
 
 export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('orders')
 	let orders = await collection.find(criteria).toArray()
 
-	if (!orders.length) throw new Error('Cannot find orders in db')
+	if (!orders.length) throw new HTTPException(404, { message: 'Cannot find orders' })
 
 	const dates = [new Date('2026-01-01T12:00:00Z'), new Date('2026-01-02T12:00:00Z'), new Date('2025-11-02T12:00:00Z'), new Date('2025-09-03T12:00:00Z'), new Date('2025-08-03T12:00:00Z')]
 	orders = orders.map(order => {
@@ -19,31 +20,29 @@ export async function query(filterBy = {}) {
 }
 
 export async function getById(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Invalid order ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid order Id' })
 
 	const collection = await dbService.getCollection('orders')
 	const order = await collection.findOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!order) throw new Error('Cannot find order by id in db')
+	if (!order) throw new HTTPException(404, { message: 'Cannot find order' })
 
 	return order
 }
 
 export async function remove(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Cannot remove order | Invalid order ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid order Id' })
 
 	const collection = await dbService.getCollection('orders')
-	const res = await collection.deleteOne({
-		_id: ObjectId.createFromHexString(id)
-	})
+	const res = await collection.deleteOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!res) throw new Error('Cannot remove order from db')
+	if (res.deletedCount === 0) throw new HTTPException(400, { message: 'Cannot remove order' })
 
 	return res
 }
 
 export async function update(order: Order) {
-	if (!order._id || !ObjectId.isValid(order._id)) throw new Error('Cannot update order | Invalid order ID')
+	if (!order._id || !ObjectId.isValid(order._id)) throw new HTTPException(400, { message: 'Invalid order Id' })
 
 	const orderToSave = {
 		product: {
@@ -64,7 +63,7 @@ export async function update(order: Order) {
 	const collection = await dbService.getCollection('orders')
 	const updatedOrder = await collection.updateOne({ _id: ObjectId.createFromHexString(order._id) }, { $set: orderToSave })
 
-	if (!updatedOrder) throw new Error('Cannot update order in db')
+	if (updatedOrder.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update order' })
 
 	return orderToSave
 }
@@ -90,7 +89,7 @@ export async function add(order: Order) {
 	const collection = await dbService.getCollection('orders')
 	const addedOrder = await collection.insertOne(orderToAdd)
 
-	if (!addedOrder) throw new Error('Cannot add order to db')
+	if (!addedOrder.insertedId) throw new HTTPException(400, { message: 'Cannot add order' })
 
 	return orderToAdd
 }

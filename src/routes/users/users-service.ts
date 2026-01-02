@@ -1,13 +1,14 @@
 import { ObjectId } from 'mongodb'
 import { dbService } from '../../services/db'
 import { PublicUser, SignupUser, UserFilter } from '../../types/user'
+import { HTTPException } from 'hono/http-exception'
 
 export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('users')
 	let dbUsers = await collection.find(criteria).toArray()
 
-	if (!dbUsers) throw new Error('Cannot find users in db')
+	if (!dbUsers.length) return []
 
 	let users = dbUsers.map(dbUser => {
 		let publicUser = makePublicUser(dbUser)
@@ -20,12 +21,12 @@ export async function query(filterBy = {}) {
 }
 
 export async function getById(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Invalid user ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid user Id' })
 
 	const collection = await dbService.getCollection('users')
 	const dbUser = await collection.findOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!dbUser) throw new Error('Cannot find user by id in db')
+	if (!dbUser) throw new HTTPException(404, { message: 'Cannot find user' })
 
 	return makePublicUser(dbUser)
 }
@@ -37,33 +38,19 @@ export async function getByEmail(email: string) {
 	return user
 }
 
-// export async function getByName(username: string) {
-// 	const collection = await dbService.getCollection('users')
-// 	const user = await collection.findOne({ username })
-
-// 	if (!user) {
-// 		const user = await collection.findOne({ email: username })
-// 		if (!user) throw new Error('Cannot find user by username or email in db')
-// 	}
-
-// 	return user
-// }
-
 export async function remove(id: string) {
-	if (!ObjectId.isValid(id)) throw new Error('Cannot remove user | Invalid user ID')
+	if (!ObjectId.isValid(id)) throw new HTTPException(400, { message: 'Invalid user Id' })
 
 	const collection = await dbService.getCollection('users')
-	const res = await collection.deleteOne({
-		_id: ObjectId.createFromHexString(id)
-	})
+	const res = await collection.deleteOne({ _id: ObjectId.createFromHexString(id) })
 
-	if (!res) throw new Error('Cannot remove user from db')
+	if (res.deletedCount === 0) throw new HTTPException(400, { message: 'Cannot remove user' })
 
 	return res
 }
 
 export async function update(user: PublicUser) {
-	if (!ObjectId.isValid(user._id)) throw new Error('Cannot update user | Invalid user ID')
+	if (!user._id || !ObjectId.isValid(user._id)) throw new HTTPException(400, { message: 'Invalid user Id' })
 
 	const userToSave = {
 		username: user.username,
@@ -73,15 +60,18 @@ export async function update(user: PublicUser) {
 	const collection = await dbService.getCollection('users')
 	const res = await collection.updateOne({ _id: ObjectId.createFromHexString(user._id) }, { $set: userToSave })
 
-	if (!res) throw new Error('Cannot update user in db')
+	if (res.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update user' })
 
 	return userToSave
 }
 
 export async function add(user: SignupUser): Promise<PublicUser> {
-	const existUser = await getByEmail(user.email)
+	if (!user.username || !user.password || !user.fullname || !user.email) {
+		throw new HTTPException(400, { message: 'Missing required fields to add user' })
+	}
 
-	if (existUser) throw new Error('Cannot add user | Email taken')
+	const existUser = await getByEmail(user.email)
+	if (existUser) throw new HTTPException(409, { message: 'Email already taken' })
 
 	const userToAdd = {
 		username: user.username,
@@ -93,7 +83,7 @@ export async function add(user: SignupUser): Promise<PublicUser> {
 	const collection = await dbService.getCollection('users')
 	const res = await collection.insertOne(userToAdd)
 
-	if (!res) throw new Error('Cannot add user to db')
+	if (!res.insertedId) throw new HTTPException(400, { message: 'Cannot add user' })
 	console.log('res', res)
 
 	return makePublicUser({ ...userToAdd, _id: res.insertedId })
