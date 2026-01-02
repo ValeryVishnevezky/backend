@@ -24,7 +24,7 @@ export async function signup(c: Context) {
 }
 
 export async function logout(c: Context) {
- deleteCookie(c, 'loginToken', {
+	deleteCookie(c, 'loginToken', {
 		httpOnly: true,
 		secure: process.env.NODE_ENV === 'production',
 		sameSite: 'Lax',

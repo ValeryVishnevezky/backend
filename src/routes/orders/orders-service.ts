@@ -9,7 +9,7 @@ export async function query(filterBy = {}) {
 
 	if (!orders.length) throw new Error('Cannot find orders in db')
 
-		const dates = [new Date('2026-01-01T12:00:00Z'), new Date('2026-01-02T12:00:00Z'), new Date('2025-11-02T12:00:00Z'), new Date('2025-09-03T12:00:00Z'), new Date('2025-08-03T12:00:00Z')]
+	const dates = [new Date('2026-01-01T12:00:00Z'), new Date('2026-01-02T12:00:00Z'), new Date('2025-11-02T12:00:00Z'), new Date('2025-09-03T12:00:00Z'), new Date('2025-08-03T12:00:00Z')]
 	orders = orders.map(order => {
 		// order.createdAt = new ObjectId(order._id).getTimestamp()
 		order.createdAt = dates[Math.floor(Math.random() * dates.length)]
@@ -82,7 +82,7 @@ export async function add(order: Order) {
 			username: order.customer.username,
 			email: order.customer.email
 		},
-		status: "panding",
+		status: 'panding',
 		quantity: order.quantity,
 		totalPrice: order.totalPrice
 	}

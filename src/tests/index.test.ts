@@ -19,12 +19,13 @@ describe('signup user', () => {
 		expect(res.status).toBe(200)
 		expect(json).toEqual({
 			user: {
-			_id: expect.any(String),
-			username: 'test',
-			fullname: 'testtest',
-			email: 'test@test.com',
-			isAdmin: false
-		}})
+				_id: expect.any(String),
+				username: 'test',
+				fullname: 'testtest',
+				email: 'test@test.com',
+				isAdmin: false
+			}
+		})
 		const cookies = res.headers.get('set-cookie')
 		expect(cookies).toMatch('loginToken=')
 	})

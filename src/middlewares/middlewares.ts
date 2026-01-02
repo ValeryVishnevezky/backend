@@ -2,8 +2,9 @@ import { verify } from 'hono/jwt'
 import { loggerService } from '../services/logger'
 import { getCookie } from 'hono/cookie'
 import { getByEmail } from '../routes/users/users-service'
+import { Context, Next } from 'hono'
 
-export async function requireAuth(c: any, next: any) {
+export async function requireAuth(c: Context, next: Next) {
 	const loginToken = getCookie(c, 'loginToken')
 
 	if (!loginToken) {
@@ -19,13 +20,12 @@ export async function requireAuth(c: any, next: any) {
 		c.set('loggedinUser', loggedinUser)
 		await next()
 	} catch (err) {
-		console.error(err)
 		loggerService.error(err)
 		return c.json({ error: 'Unauthorized' }, 401)
 	}
 }
 
-export async function requireAdmin(c: any, next: any) {
+export async function requireAdmin(c: Context, next: Next) {
 	const loginToken = getCookie(c, 'loginToken')
 
 	if (!loginToken) {
@@ -37,14 +37,12 @@ export async function requireAdmin(c: any, next: any) {
 		if (!validateToken) return c.json({ error: 'Invalid token' }, 401)
 
 		const loggedinUser = await getByEmail(validateToken.email as string)
-		if (!loggedinUser?.isAdmin) throw new Error('Unauthorized access to statistics')
+		if (!loggedinUser?.isAdmin) throw new Error('Unauthorized access')
 
 		c.set('loggedinUser', loggedinUser)
 		await next()
 	} catch (err) {
-		console.error(err)
-		loggerService.error(err)
+		loggerService.warn(err)
 		return c.json({ error: 'Unauthorized access' }, 401)
 	}
 }
-

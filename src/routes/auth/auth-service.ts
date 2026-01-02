@@ -50,5 +50,5 @@ export const cookieOptions = {
 	secure: process.env.NODE_ENV === 'production',
 	sameSite: 'Lax',
 	path: '/',
-	maxAge: 60 * 60 * 24,
+	maxAge: 60 * 60 * 24
 } as CookieOptions
