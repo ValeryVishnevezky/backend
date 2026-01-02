@@ -1,10 +1,23 @@
+export interface ProductInfo {
+  _id: string
+  name: string
+  price: number
+  category: string
+}
+
+export interface CustomerInfo {
+  _id: string
+  username: string
+  email: string
+}
+
 export interface Order {
-	_id: string
-	product: object
-	customer: object
-	status: string
-	quantity: number
-	totalPrice: number
+  _id: string
+  product: ProductInfo
+  customer: CustomerInfo
+  status: string
+  quantity: number
+  totalPrice: number
 }
 
 export interface OrderFilter {

@@ -1,4 +1,5 @@
 # deps
 node_modules/
 logs/
+backend.log
 .env

@@ -21,13 +21,16 @@ export async function deleteOrder(c: Context) {
 
 export async function updateOrder(c: Context) {
 	const id = c.req.param('id')
-	const product = await c.req.json()
-	const savedOrder = await update({ ...product, _id: id })
+	const order = await c.req.json()
+	const loggedinUser = c.get('loggedinUser')
+	const savedOrder = await update({ ...order, _id: id, customer: loggedinUser })
 	return c.json(savedOrder)
 }
 
 export async function addOrder(c: Context) {
-	const product = await c.req.json()
-	const savedOrder = await add(product)
+	const order = await c.req.json()
+	const loggedinUser = c.get('loggedinUser')
+	console.log('loggedinUser:', loggedinUser)
+	const savedOrder = await add({ ...order, customer: loggedinUser })
 	return c.json(savedOrder)
 }

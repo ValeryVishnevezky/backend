@@ -1,7 +1,7 @@
 import { loggerService } from '../../services/logger'
 import { LoginUser, PublicUser, SignupUser, TokenUser } from '../../types/user'
 import { add, getByEmail, makePublicUser } from '../users/users-service'
-import { sign, verify } from 'hono/jwt'
+import { sign } from 'hono/jwt'
 import bcrypt from 'bcrypt'
 import { CookieOptions } from 'hono/utils/cookie'
 
@@ -35,15 +35,13 @@ export async function signupService(user: SignupUser) {
 }
 
 export async function generateToken(user: TokenUser) {
-	const JWT_SECRET = process.env.JWT_SECRET
-
 	return await sign(
 		{
 			_id: user._id,
 			email: user.email,
 			exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
 		},
-		JWT_SECRET!
+		process.env.JWT_SECRET!
 	)
 }
 

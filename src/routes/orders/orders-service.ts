@@ -24,7 +24,6 @@ export async function getById(id: string) {
 
 	if (!order) throw new Error('Cannot find order by id in db')
 
-	delete order?.password
 	return order
 }
 
@@ -42,37 +41,55 @@ export async function remove(id: string) {
 }
 
 export async function update(order: Order) {
-	if (!ObjectId.isValid(order._id)) throw new Error('Cannot update order | Invalid order ID')
+	if (!order._id || !ObjectId.isValid(order._id)) throw new Error('Cannot update order | Invalid order ID')
 
 	const orderToSave = {
-		product: order.product,
-		customer: order.customer,
+		product: {
+			_id: ObjectId.createFromHexString(order.product._id),
+			name: order.product.name,
+			price: order.product.price,
+			category: order.product.category
+		},
+		customer: {
+			_id: ObjectId.createFromHexString(order.customer._id),
+			username: order.customer.username,
+			email: order.customer.email
+		},
 		status: order.status,
 		quantity: order.quantity,
 		totalPrice: order.totalPrice
 	}
 	const collection = await dbService.getCollection('orders')
-	const updatedProduct = await collection.updateOne({ _id: ObjectId.createFromHexString(order._id) }, { $set: orderToSave })
+	const updatedOrder = await collection.updateOne({ _id: ObjectId.createFromHexString(order._id) }, { $set: orderToSave })
 
-	if (!updatedProduct) throw new Error('Cannot update order in db')
+	if (!updatedOrder) throw new Error('Cannot update order in db')
 
 	return orderToSave
 }
 
 export async function add(order: Order) {
-	console.log('order', order)
+	// console.log('order', order)
 	const orderToAdd = {
-		product: order.product,
-		customer: order.customer,
+		product: {
+			_id: ObjectId.createFromHexString(order.product._id),
+			name: order.product.name,
+			price: order.product.price,
+			category: order.product.category
+		},
+		customer: {
+			_id: ObjectId.createFromHexString(order.customer._id),
+			username: order.customer.username,
+			email: order.customer.email
+		},
 		status: order.status,
 		quantity: order.quantity,
 		totalPrice: order.totalPrice
 	}
 	console.log('orderToAdd', orderToAdd)
 	const collection = await dbService.getCollection('orders')
-	const addedProduct = await collection.insertOne(orderToAdd)
-	console.log('addedProduct', addedProduct)
-	if (!addedProduct) throw new Error('Cannot add order to db')
+	const addedOrder = await collection.insertOne(orderToAdd)
+	console.log('addedOrder', addedOrder)
+	if (!addedOrder) throw new Error('Cannot add order to db')
 
 	return orderToAdd
 }
