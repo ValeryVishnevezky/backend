@@ -6,7 +6,7 @@
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"],
+    "types": ["bun-types"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
   },

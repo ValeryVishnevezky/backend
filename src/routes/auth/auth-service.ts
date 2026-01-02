@@ -3,6 +3,7 @@ import { LoginUser, PublicUser, SignupUser, TokenUser } from '../../types/user'
 import { add, getByEmail, makePublicUser } from '../users/users-service'
 import { sign, verify } from 'hono/jwt'
 import bcrypt from 'bcrypt'
+import { CookieOptions } from 'hono/utils/cookie'
 
 export async function loginService(user: LoginUser): Promise<PublicUser> {
 	if (!user.email || !user.password) {
@@ -35,14 +36,21 @@ export async function signupService(user: SignupUser) {
 
 export async function generateToken(user: TokenUser) {
 	const JWT_SECRET = process.env.JWT_SECRET
-	if (!JWT_SECRET) throw new Error('JWT_SECRET missing')
 
 	return await sign(
 		{
-			sub: user._id,
+			_id: user._id,
 			email: user.email,
 			exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24
 		},
-		JWT_SECRET
+		JWT_SECRET!
 	)
 }
+
+export const cookieOptions = {
+	httpOnly: true,
+	secure: process.env.NODE_ENV === 'production',
+	sameSite: 'Lax',
+	path: '/',
+	maxAge: 60 * 60 * 24,
+} as CookieOptions
