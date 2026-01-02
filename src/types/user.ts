@@ -4,6 +4,7 @@ export interface PublicUser {
 	fullname: string
 	email: string
 	isAdmin: boolean
+	createdAt: Date
 }
 
 export interface SignupUser {
@@ -11,6 +12,7 @@ export interface SignupUser {
 	password: string
 	fullname: string
 	email: string
+	createdAt: Date
 }
 
 export interface LoginUser {

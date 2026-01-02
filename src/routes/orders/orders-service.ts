@@ -7,15 +7,6 @@ export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('orders')
 	let orders = await collection.find(criteria).toArray()
-
-	if (!orders.length) throw new HTTPException(404, { message: 'Cannot find orders' })
-
-	const dates = [new Date('2026-01-01T12:00:00Z'), new Date('2026-01-02T12:00:00Z'), new Date('2025-11-02T12:00:00Z'), new Date('2025-09-03T12:00:00Z'), new Date('2025-08-03T12:00:00Z')]
-	orders = orders.map(order => {
-		// order.createdAt = new ObjectId(order._id).getTimestamp()
-		order.createdAt = dates[Math.floor(Math.random() * dates.length)]
-		return order
-	})
 	return orders
 }
 
@@ -63,7 +54,7 @@ export async function update(order: Order) {
 	const collection = await dbService.getCollection('orders')
 	const updatedOrder = await collection.updateOne({ _id: ObjectId.createFromHexString(order._id) }, { $set: orderToSave })
 
-	if (updatedOrder.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update order' })
+	if (updatedOrder.modifiedCount === 0) throw new HTTPException(404, { message: 'Cannot update order' })
 
 	return orderToSave
 }
@@ -73,7 +64,6 @@ export async function add(order: Order) {
 		product: {
 			_id: ObjectId.createFromHexString(order.product._id),
 			name: order.product.name,
-			price: order.product.price,
 			category: order.product.category
 		},
 		customer: {
@@ -81,15 +71,16 @@ export async function add(order: Order) {
 			username: order.customer.username,
 			email: order.customer.email
 		},
-		status: 'panding',
+		status: 'pending',
 		quantity: order.quantity,
-		totalPrice: order.totalPrice
+		totalPrice: order.totalPrice,
+		createdAt: new Date()
 	}
 
 	const collection = await dbService.getCollection('orders')
 	const addedOrder = await collection.insertOne(orderToAdd)
 
-	if (!addedOrder.insertedId) throw new HTTPException(400, { message: 'Cannot add order' })
+	if (!addedOrder.insertedId) throw new HTTPException(500, { message: 'Cannot add order' })
 
 	return orderToAdd
 }
@@ -97,21 +88,21 @@ export async function add(order: Order) {
 function _buildCriteria(filterBy: OrderFilter) {
 	const criteria: any = {}
 	if (filterBy.productId) {
-		criteria['product._id'] = filterBy.productId
+		criteria['product._id'] = ObjectId.createFromHexString(filterBy.productId)
 	}
 	if (filterBy.category) {
 		criteria['product.category'] = filterBy.category
 	}
 	if (filterBy.customerId) {
-		criteria['customer._id'] = filterBy.customerId
+		criteria['customer._id'] = ObjectId.createFromHexString(filterBy.customerId)
 	}
 	if (filterBy.status) {
 		criteria.status = { $regex: filterBy.status, $options: 'i' }
 	}
-	if (filterBy.totalMinPrice || filterBy.totalMaxPrice) {
+	if (filterBy.totalMinPrice != null || filterBy.totalMaxPrice != null) {
 		criteria.totalPrice = {}
-		if (filterBy.totalMinPrice != null) criteria.totalPrice = { $gte: +filterBy.totalMinPrice }
-		if (filterBy.totalMaxPrice != null) criteria.totalPrice = { $lte: +filterBy.totalMaxPrice }
+		if (filterBy.totalMinPrice != null) criteria.totalPrice.$gte = +filterBy.totalMinPrice
+		if (filterBy.totalMaxPrice != null) criteria.totalPrice.$lte = +filterBy.totalMaxPrice
 	}
 	if (filterBy.quantity) {
 		criteria.quantity = { $eq: +filterBy.quantity }

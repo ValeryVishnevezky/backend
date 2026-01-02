@@ -4,6 +4,7 @@ export interface Product {
 	price: number
 	category: string
 	inStock: boolean
+	createdAt: Date
 }
 
 export interface ProductFilter {

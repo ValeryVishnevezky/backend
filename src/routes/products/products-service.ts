@@ -7,9 +7,6 @@ export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('products')
 	let products = await collection.find(criteria).toArray()
-
-	if (!products.length) throw new HTTPException(404, { message: 'Cannot find products' })
-
 	return products
 }
 
@@ -21,7 +18,6 @@ export async function getById(id: string) {
 
 	if (!product) throw new HTTPException(404, { message: 'Cannot find product' })
 
-	delete product?.password
 	return product
 }
 
@@ -48,13 +44,13 @@ export async function update(product: Product) {
 	const collection = await dbService.getCollection('products')
 	const updatedProduct = await collection.updateOne({ _id: ObjectId.createFromHexString(product._id) }, { $set: productToSave })
 
-	if (updatedProduct.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update product' })
+	if (updatedProduct.modifiedCount === 0) throw new HTTPException(404, { message: 'Cannot update product' })
 
 	return productToSave
 }
 
 export async function add(product: Product) {
-	if (!product.name || !product.price || !product.category || !product.inStock) {
+	if (!product.name || !product.price || !product.category || typeof product.inStock !== 'boolean') {
 		throw new HTTPException(400, { message: 'Missing required fields to add product' })
 	}
 
@@ -62,13 +58,13 @@ export async function add(product: Product) {
 		name: product.name,
 		price: product.price,
 		category: product.category,
-		inStock: product.inStock
+		inStock: product.inStock,
+		createdAt: new Date()
 	}
 	const collection = await dbService.getCollection('products')
 	const addedProduct = await collection.insertOne(productToAdd)
 
-	console.log('addedProduct', addedProduct)
-	if (!addedProduct.insertedId) throw new HTTPException(400, { message: 'Cannot add product' })
+	if (!addedProduct.insertedId) throw new HTTPException(500, { message: 'Cannot add product' })
 
 	return productToAdd
 }
@@ -78,10 +74,10 @@ function _buildCriteria(filterBy: ProductFilter) {
 	if (filterBy.txt) {
 		criteria.name = { $regex: filterBy.txt, $options: 'i' }
 	}
-	if (filterBy.minPrice || filterBy.maxPrice) {
+	if (filterBy.minPrice != null || filterBy.maxPrice != null) {
 		criteria.price = {}
-		if (filterBy.minPrice != null) criteria.price = { $gte: +filterBy.minPrice }
-		if (filterBy.maxPrice != null) criteria.price = { $lte: +filterBy.maxPrice }
+		if (filterBy.minPrice != null) criteria.price.$gte = +filterBy.minPrice
+		if (filterBy.maxPrice != null) criteria.price.$lte = +filterBy.maxPrice
 	}
 	if (filterBy.category) {
 		criteria.category = { $regex: filterBy.category, $options: 'i' }

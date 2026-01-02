@@ -7,17 +7,7 @@ export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('users')
 	let dbUsers = await collection.find(criteria).toArray()
-
-	if (!dbUsers.length) return []
-
-	let users = dbUsers.map(dbUser => {
-		let publicUser = makePublicUser(dbUser)
-		return {
-			...publicUser,
-			createdAt: new ObjectId(dbUser._id).getTimestamp()
-		}
-	})
-	return users
+	return dbUsers
 }
 
 export async function getById(id: string) {
@@ -52,6 +42,9 @@ export async function remove(id: string) {
 export async function update(user: PublicUser) {
 	if (!user._id || !ObjectId.isValid(user._id)) throw new HTTPException(400, { message: 'Invalid user Id' })
 
+	const existUser = await getByEmail(user.email)
+	if (existUser && existUser._id.toString() !== user._id) throw new HTTPException(409, { message: 'Email already taken' })
+
 	const userToSave = {
 		username: user.username,
 		fullname: user.fullname,
@@ -60,7 +53,7 @@ export async function update(user: PublicUser) {
 	const collection = await dbService.getCollection('users')
 	const res = await collection.updateOne({ _id: ObjectId.createFromHexString(user._id) }, { $set: userToSave })
 
-	if (res.matchedCount === 0) throw new HTTPException(400, { message: 'Cannot update user' })
+	if (res.modifiedCount === 0) throw new HTTPException(404, { message: 'Cannot update user' })
 
 	return userToSave
 }
@@ -70,21 +63,18 @@ export async function add(user: SignupUser): Promise<PublicUser> {
 		throw new HTTPException(400, { message: 'Missing required fields to add user' })
 	}
 
-	const existUser = await getByEmail(user.email)
-	if (existUser) throw new HTTPException(409, { message: 'Email already taken' })
-
 	const userToAdd = {
 		username: user.username,
 		password: user.password,
 		fullname: user.fullname,
 		isAdmin: false,
-		email: user.email
+		email: user.email,
+		createdAt: new Date()
 	}
 	const collection = await dbService.getCollection('users')
 	const res = await collection.insertOne(userToAdd)
 
-	if (!res.insertedId) throw new HTTPException(400, { message: 'Cannot add user' })
-	console.log('res', res)
+	if (!res.insertedId) throw new HTTPException(500, { message: 'Cannot add user' })
 
 	return makePublicUser({ ...userToAdd, _id: res.insertedId })
 }
@@ -114,6 +104,7 @@ export function makePublicUser(user: any): PublicUser {
 		username: user.username,
 		fullname: user.fullname,
 		email: user.email,
-		isAdmin: user.isAdmin || false
+		isAdmin: user.isAdmin || false,
+		createdAt: user.createdAt
 	}
 }

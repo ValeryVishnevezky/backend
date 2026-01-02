@@ -18,7 +18,7 @@ export interface Order {
 	status: string
 	quantity: number
 	totalPrice: number
-	createdAt?: Date
+	createdAt: Date
 }
 
 export interface OrderFilter {
