@@ -3,10 +3,11 @@ import { dbService } from '../../services/db'
 import { Order, OrderFilter } from '../../types/order'
 import { HTTPException } from 'hono/http-exception'
 
-export async function query(filterBy = {}) {
+export async function query(filterBy: OrderFilter = {}) {
 	const criteria = _buildCriteria(filterBy)
+	const sort = -1 || 1
 	const collection = await dbService.getCollection('orders')
-	let orders = await collection.find(criteria).sort({ createdAt: 1 }).toArray()
+	let orders = await collection.find(criteria).sort({ createdAt: sort }).toArray()
 	return orders
 }
 

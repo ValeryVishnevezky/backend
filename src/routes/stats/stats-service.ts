@@ -5,7 +5,7 @@ import { query } from '../orders/orders-service'
 
 export async function getStatistics(filterBy: StatsFilter = { period: 'week' }) {
 	const { currentStart, currentEnd, prevStart, prevEnd } = getPeriodDates(filterBy)
-	const orders = await query({ createdAt: prevStart })
+	const orders = await query({ createdAt: prevStart, sort: -1 })
 	const ordersToCalculate = _makeOrdersToCalculate(orders)
 
 	if (!ordersToCalculate.length) {

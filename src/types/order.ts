@@ -31,4 +31,5 @@ export interface OrderFilter {
 	totalMinPrice?: number
 	totalMaxPrice?: number
 	createdAt?: Date
+	sort?: number
 }
