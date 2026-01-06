@@ -30,7 +30,6 @@ export async function updateOrder(c: Context) {
 export async function addOrder(c: Context) {
 	const order = await c.req.json()
 	const loggedinUser = c.get('loggedinUser')
-	console.log('loggedinUser:', loggedinUser)
 	const savedOrder = await add({ ...order, customer: loggedinUser })
 	return c.json(savedOrder)
 }
