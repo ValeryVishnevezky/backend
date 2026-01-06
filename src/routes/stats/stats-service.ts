@@ -17,7 +17,8 @@ export async function getStatistics(filterBy: StatsFilter = { period: 'week' }) 
 
 	return {
 		currentPeriod: statsMap(currentPeriod, filterBy.period),
-		prevPeriod: statsMap(prevPeriod, filterBy.period)
+		prevPeriod: statsMap(prevPeriod, filterBy.period),
+		deliveryStats: getDeliveryStats(currentPeriod)
 	}
 }
 
@@ -50,6 +51,25 @@ function statsMap(orders: Order[], period: string) {
 	}
 
 	return stats
+}
+
+function getDeliveryStats(orders: Order[]) {
+	const deliveryStats = orders.reduce(
+		(stats, order) => {
+			if (order.status === 'pending') {
+				stats.Pending++
+			} else if (order.status === 'processing') {
+				stats.Processing++
+			} else if (order.status === 'delivered') {
+				stats.Delivered++
+			} else if (order.status === 'cancelled') {
+				stats.Cancelled++
+			}
+			return stats
+		},
+		{ Pending: 0, Processing: 0, Delivered: 0, Cancelled: 0 }
+	)
+	return deliveryStats
 }
 
 function emptyStats() {

@@ -67,10 +67,11 @@ export async function add(order: Order) {
 			_id: ObjectId.createFromHexString(order.product._id),
 			name: order.product.name,
 			category: order.product.category,
-			price: order.product.price
+			price: order.product.price,
+			imgUrl: order.product.imgUrl
 		},
 		customer: {
-			_id: ObjectId.createFromHexString(order.customer._id),
+			_id: order.customer._id,
 			username: order.customer.username,
 			email: order.customer.email
 		},
