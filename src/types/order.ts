@@ -3,6 +3,7 @@ export interface ProductInfo {
 	name: string
 	price: number
 	category: string
+	imgUrl?: string
 }
 
 export interface CustomerInfo {
@@ -29,4 +30,5 @@ export interface OrderFilter {
 	quantity?: number
 	totalMinPrice?: number
 	totalMaxPrice?: number
+	createdAt?: Date
 }

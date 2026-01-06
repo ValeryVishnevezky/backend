@@ -39,7 +39,9 @@ export async function update(product: Product) {
 		name: product.name,
 		price: product.price,
 		category: product.category,
-		inStock: product.inStock
+		inStock: product.inStock,
+		createdAt: product.createdAt,
+		imgUrl: product.imgUrl || ''
 	}
 	const collection = await dbService.getCollection('products')
 	const updatedProduct = await collection.updateOne({ _id: ObjectId.createFromHexString(product._id) }, { $set: productToSave })
@@ -59,7 +61,8 @@ export async function add(product: Product) {
 		price: product.price,
 		category: product.category,
 		inStock: product.inStock,
-		createdAt: new Date()
+		createdAt: new Date(),
+		imgUrl: product.imgUrl || ''
 	}
 	const collection = await dbService.getCollection('products')
 	const addedProduct = await collection.insertOne(productToAdd)

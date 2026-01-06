@@ -6,7 +6,7 @@ import { HTTPException } from 'hono/http-exception'
 export async function query(filterBy = {}) {
 	const criteria = _buildCriteria(filterBy)
 	const collection = await dbService.getCollection('orders')
-	let orders = await collection.find(criteria).toArray()
+	let orders = await collection.find(criteria).sort({ createdAt: 1 }).toArray()
 	return orders
 }
 
@@ -49,7 +49,9 @@ export async function update(order: Order) {
 		},
 		status: order.status,
 		quantity: order.quantity,
-		totalPrice: order.totalPrice
+		totalPrice: order.product.price * order.quantity,
+		updatedAt: new Date(),
+		createdAt: order.createdAt
 	}
 	const collection = await dbService.getCollection('orders')
 	const updatedOrder = await collection.updateOne({ _id: ObjectId.createFromHexString(order._id) }, { $set: orderToSave })
@@ -64,16 +66,17 @@ export async function add(order: Order) {
 		product: {
 			_id: ObjectId.createFromHexString(order.product._id),
 			name: order.product.name,
-			category: order.product.category
+			category: order.product.category,
+			price: order.product.price
 		},
 		customer: {
-			_id: order.customer._id,
+			_id: ObjectId.createFromHexString(order.customer._id),
 			username: order.customer.username,
 			email: order.customer.email
 		},
 		status: 'pending',
 		quantity: order.quantity,
-		totalPrice: order.totalPrice,
+		totalPrice: order.product.price * order.quantity,
 		createdAt: new Date()
 	}
 
@@ -106,6 +109,9 @@ function _buildCriteria(filterBy: OrderFilter) {
 	}
 	if (filterBy.quantity) {
 		criteria.quantity = { $eq: +filterBy.quantity }
+	}
+	if (filterBy.createdAt) {
+		criteria.createdAt = { $gte: filterBy.createdAt }
 	}
 	return criteria
 }

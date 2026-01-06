@@ -1,60 +1,41 @@
 import { loggerService } from '../../services/logger'
 import { Order } from '../../types/order'
+import { StatsFilter } from '../../types/stats'
 import { query } from '../orders/orders-service'
 
-export async function getStatistics() {
-	const orders = await query()
+export async function getStatistics(filterBy: StatsFilter = { period: 'week' }) {
+	const { currentStart, currentEnd, prevStart, prevEnd } = getPeriodDates(filterBy)
+	const orders = await query({ createdAt: prevStart })
 	const ordersToCalculate = _makeOrdersToCalculate(orders)
 
 	if (!ordersToCalculate.length) {
 		loggerService.info('No orders found for statistics')
-		return {
-			allTimeStats: emptyStats(),
-			lastMonthStats: emptyStats()
-		}
+		return { currentPeriod: emptyStats(), prevPeriod: emptyStats() }
 	}
 
-	const perMonthStats = calculateStats(ordersToCalculate, 'year')
-	const lastWeekStats = calculateStats(ordersToCalculate, 'week')
-	// const allStats = calculateStats(ordersToCalculate, 'all')
-	return { perMonthStats, lastWeekStats }
+	const { currentPeriod, prevPeriod } = getFilteredOrders(ordersToCalculate, currentStart, currentEnd, prevStart, prevEnd)
+
+	return {
+		currentPeriod: statsMap(currentPeriod, filterBy.period),
+		prevPeriod: statsMap(prevPeriod, filterBy.period)
+	}
 }
 
-function calculateStats(orders: Order[], period: string) {
+function getFilteredOrders(ordersToCalculate: Order[], currentStart: Date, currentEnd: Date, prevStart: Date, prevEnd: Date) {
+	let currentPeriod = ordersToCalculate.filter(order => order.createdAt >= currentStart && order.createdAt <= currentEnd)
+	let prevPeriod = ordersToCalculate.filter(order => order.createdAt >= prevStart && order.createdAt < prevEnd)
+	return { currentPeriod, prevPeriod }
+}
+
+function statsMap(orders: Order[], period: string) {
+	if (!orders.length) return emptyStats()
 	const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 	const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-	let names: string[] = []
-	const date = new Date()
+	const names = period === 'week' ? dayNames : monthNames
 
-	if (period === 'year') {
-		date.setDate(date.getDate() - 365)
-		names = monthNames
-	} else if (period === 'week') {
-		date.setDate(date.getDate() - 7)
-		names = dayNames
-	}
-
-	const ordersToCalculate = orders.filter(order => (order.createdAt ? order.createdAt > date : false))
-
-	if (!ordersToCalculate.length) {
-		loggerService.info('No orders found for statistics')
-		return emptyStats()
-	}
-
-	return statsMap(ordersToCalculate, names, period)
-}
-
-function statsMap(orders: Order[], names: string[], period: string) {
 	const stats = orders.reduce((map, order) => {
-		let name: string = ''
-
-		if (period === 'year') {
-			const idx = order.createdAt ? order.createdAt.getMonth() : 0
-			name = names[idx]
-		} else if (period === 'week') {
-			const idx = order.createdAt ? order.createdAt.getDay() : 0
-			name = names[idx]
-		}
+		const idx = period === 'week' ? order.createdAt.getUTCDay() : order.createdAt.getUTCMonth()
+		const name = names[idx]
 
 		if (!map[name]) map[name] = { totalRevenue: 0, totalOrders: 0, totalProductsSold: 0, averageOrderValue: 0 }
 		map[name].totalRevenue += order.totalPrice
@@ -73,11 +54,40 @@ function statsMap(orders: Order[], names: string[], period: string) {
 
 function emptyStats() {
 	return {
-		totalRevenue: 0,
-		totalOrders: 0,
-		averageOrderValue: 0,
-		totalProductsSold: 0
+		empty: {
+			totalRevenue: 0,
+			totalOrders: 0,
+			averageOrderValue: 0,
+			totalProductsSold: 0
+		}
 	}
+}
+
+function getPeriodDates(filterBy: StatsFilter) {
+	const now = new Date()
+	let currentStart = new Date(now.getTime())
+	let prevStart = new Date(now.getTime())
+	let prevEnd = new Date(now.getTime())
+
+	switch (filterBy.period) {
+		case 'week':
+			currentStart.setUTCDate(currentStart.getUTCDate() - 7)
+			prevStart.setUTCDate(prevStart.getUTCDate() - 14)
+			prevEnd.setUTCDate(prevEnd.getUTCDate() - 7)
+			break
+		case '3months':
+			currentStart.setMonth(now.getUTCMonth() - 3)
+			prevStart.setMonth(now.getUTCMonth() - 6)
+			prevEnd.setMonth(now.getUTCMonth() - 3)
+			break
+		case 'year':
+			currentStart.setFullYear(now.getFullYear() - 1)
+			prevStart.setFullYear(now.getFullYear() - 2)
+			prevEnd.setFullYear(now.getFullYear() - 1)
+			break
+	}
+
+	return { currentStart, currentEnd: now, prevStart, prevEnd }
 }
 
 function _makeOrdersToCalculate(orders: any[]): Order[] {

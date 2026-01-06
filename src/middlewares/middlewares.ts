@@ -8,14 +8,23 @@ import { HTTPException } from 'hono/http-exception'
 export async function requireAuth(c: Context, next: Next) {
 	const loginToken = getCookie(c, 'loginToken')
 
-	if (!loginToken) throw new HTTPException(401, { message: 'Unauthorized' })
+	if (!loginToken) {
+		loggerService.error('No token provided')
+		throw new HTTPException(401, { message: 'Unauthorized' })
+	}
 
 	try {
 		const validateToken = await verify(loginToken, process.env.JWT_SECRET!)
-		if (!validateToken) throw new HTTPException(401, { message: 'Invalid token' })
+		if (!validateToken) {
+			loggerService.error('Invalid token')
+			throw new HTTPException(401, { message: 'Invalid token' })
+		}
 
 		const loggedinUser = await getByEmail(validateToken.email as string)
-		if (!loggedinUser) throw new HTTPException(401, { message: 'User not found' })
+		if (!loggedinUser) {
+			loggerService.error('User not found')
+			throw new HTTPException(401, { message: 'User not found' })
+		}
 
 		c.set('loggedinUser', loggedinUser)
 		await next()
@@ -28,7 +37,9 @@ export async function requireAuth(c: Context, next: Next) {
 export async function requireAdmin(c: Context, next: Next) {
 	const user = c.get('loggedinUser')
 
-	if (!user?.isAdmin) throw new HTTPException(403, { message: 'Unauthorized access' })
-
+	if (!user?.isAdmin) {
+		loggerService.error('Unauthorized access')
+		throw new HTTPException(403, { message: 'Unauthorized access' })
+	}
 	await next()
 }

@@ -9,7 +9,7 @@ export async function login(c: Context) {
 	const loginToken = await generateToken({ _id: loggedinUser._id, email: loggedinUser.email })
 
 	setCookie(c, 'loginToken', loginToken, cookieOptions)
-	return c.json({ user: loggedinUser })
+	return c.json(loggedinUser)
 }
 
 export async function signup(c: Context) {
@@ -20,7 +20,7 @@ export async function signup(c: Context) {
 	const loginToken = await generateToken({ _id: loggedinUser._id, email: loggedinUser.email })
 
 	setCookie(c, 'loginToken', loginToken, cookieOptions)
-	return c.json({ user: loggedinUser })
+	return c.json(loggedinUser)
 }
 
 export async function logout(c: Context) {

@@ -1,9 +1,10 @@
 import { LoginUser, PublicUser, SignupUser, TokenUser } from '../../types/user'
 import { add, getByEmail, makePublicUser } from '../users/users-service'
-import { sign } from 'hono/jwt'
 import bcrypt from 'bcrypt'
+import { sign } from 'hono/jwt'
 import { CookieOptions } from 'hono/utils/cookie'
 import { HTTPException } from 'hono/http-exception'
+import { loggerService } from '../../services/logger'
 
 export async function loginService(user: LoginUser): Promise<PublicUser> {
 	if (!user.email || !user.password) {
@@ -16,6 +17,7 @@ export async function loginService(user: LoginUser): Promise<PublicUser> {
 	const match = await bcrypt.compare(user.password, dbUser.password)
 	if (!match) throw new HTTPException(400, { message: 'Invalid email or password' })
 
+	loggerService.info(`Login success`)
 	return makePublicUser(dbUser)
 }
 
@@ -28,6 +30,7 @@ export async function signupService(user: SignupUser) {
 	const saltRounds = 10
 	const hash = await bcrypt.hash(user.password, saltRounds)
 
+	loggerService.info(`Signup seccess`)
 	return add({ ...user, password: hash })
 }
 

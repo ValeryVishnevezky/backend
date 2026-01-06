@@ -2,10 +2,11 @@
   "name": "backend",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-	"test": "bun test"
+    "test": "bun test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "hono": "^4.11.3",
     "jsonwebtoken": "^9.0.3",

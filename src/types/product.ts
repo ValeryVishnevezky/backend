@@ -5,6 +5,8 @@ export interface Product {
 	category: string
 	inStock: boolean
 	createdAt: Date
+	updatedAt: Date
+	imgUrl?: string
 }
 
 export interface ProductFilter {
