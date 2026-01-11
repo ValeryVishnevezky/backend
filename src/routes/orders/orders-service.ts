@@ -5,7 +5,7 @@ import { HTTPException } from 'hono/http-exception'
 
 export async function query(filterBy: OrderFilter = {}) {
 	const criteria = _buildCriteria(filterBy)
-	const sort = filterBy ? 1 : -1
+	const sort = filterBy.createdAt ? 1 : -1
 	const collection = await dbService.getCollection('orders')
 	let orders = await collection.find(criteria).sort({ createdAt: sort }).toArray()
 	return orders
