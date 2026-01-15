@@ -84,8 +84,7 @@ App provides dark and light theme support with toggle button
 
 ### Products List
 
-Full responsive products list with
-to display stok status
+Full responsive products list with stock status
 
 Light Theme:
 ![Theme Toggle](./readme-imgs/ListLight.png)
